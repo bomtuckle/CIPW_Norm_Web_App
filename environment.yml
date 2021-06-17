@@ -2,10 +2,10 @@ name: CIPW_Norm_Web_App
 channels:
   - defaults
 dependencies:
-  - numpy=1.20.2=py39ha4e8547_0
-  - pandas=1.2.4=py39hd77b12b_0
-  - pip=21.1.1=py39haa95532_0
-  - plotly=4.14.3=pyhd3eb1b0_0
-  - python=3.9.5=h6244533_3
+  - numpy=1.20.2
+  - openpyxl=3.0.7
+  - pandas=1.2.4
+  - pip=21.1.1
+  - plotly=4.14.3
   - pip:
     - streamlit==0.82.0
