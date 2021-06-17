@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
+import base64
 
 def load_data(file):
     if file is not None:
@@ -14,6 +15,7 @@ def load_data(file):
         data = None
     return data
 
+@st.cache
 def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
     """
     Calculates mineralogy from bulk geochemistry
@@ -160,24 +162,19 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
         'V': 'V2O3'
     }
 
-    # # for testing
-    # df = pd.read_excel('test_CIPW_data.xlsx')
-    # Fe_adjustment_factor = 0.1
-    # majors_only=True
-    # subdivide=False
 
 
-    # # replace str values from df with 0
-    # def unique_strings(df, col):
-    #     return df[col][df[col].map(type) == str].unique().tolist()
+    # replace str values from df with 0
+    def unique_strings(df, col):
+        return df[col][df[col].map(type) == str].unique().tolist()
 
     # replace nans with 0
 
     df.fillna(0, inplace=True)
 
-    # for col in df.columns.tolist():
-    #     unique_str = (unique_strings(df, col))
-    #     df[col].replace(unique_str, 0, inplace=True)
+    for col in df.columns.tolist():
+        unique_str = (unique_strings(df, col))
+        df[col].replace(unique_str, 0, inplace=True)
 
 
     oxides = ['SiO2', 'TiO2', 'Al2O3', 'Fe2O3', 'FeO', 'MnO', 'MgO', 'CaO',
@@ -850,8 +847,8 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
 
     return(mineral_pct_mm)
 
-
-def fe_correction(df, method='La Maitre', ig_type='plutonic', constant=None):
+@st.cache
+def fe_correction(df, method='Le Maitre', ig_type='plutonic', constant=None):
     """
         Adjusts FeO Fe2O3 ratio
         -----------
@@ -863,13 +860,27 @@ def fe_correction(df, method='La Maitre', ig_type='plutonic', constant=None):
             dataframe with corrected FeO and Fe2O3 values
 
 
-        References:
-        'La Maitre' method uses regressions from Le Maitre (1976)
+        Reference
+        --------
+        Le Maitre, R.W. Some problems of the projection of chemical data into mineralogical classifications
+        Contr. Mineral. and Petrol. 56, 181–189 (1976). https://doi.org/10.1007/BF00399603
     """
 
     df = df.copy(deep=True)
 
-    method_values = ['La Maitre', 'Constant']
+    # replace str values from df with 0
+    def unique_strings(df, col):
+        return df[col][df[col].map(type) == str].unique().tolist()
+
+    # replace nans with 0
+
+    df.fillna(0, inplace=True)
+
+    for col in ['Fe2O3', 'SiO2', 'Na2O', 'K2O']:
+        unique_str = (unique_strings(df, col))
+        df[col].replace(unique_str, 0, inplace=True)
+
+    method_values = ['Le Maitre', 'Constant']
     if method not in method_values:
         raise ValueError("Invalid method given. Expecting {}".format(method_values))
 
@@ -902,3 +913,11 @@ def fe_correction(df, method='La Maitre', ig_type='plutonic', constant=None):
     df['FeO'] = df['adjusted_FeO']
 
     return df[['FeO', 'Fe2O3']]
+
+
+def download_df(df):
+    xlsx = df.to_csv(index=False)
+    b64 = base64.b64encode(
+        xlsx.encode()
+    ).decode()
+    return f'<a href="data:file/csv;base64,{b64}" download="normative_mineralogy.csv">Download csv file</a>'
