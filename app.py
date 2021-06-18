@@ -22,7 +22,7 @@ if file is not None:
     st.write(data)
 
 st.sidebar.write('## Fe Correction Method')
-fe_option = st.sidebar.selectbox('Fe Correction Method', ['Constant', 'La Maitre', 'Specified'])
+fe_option = st.sidebar.selectbox('Fe Correction Method', ['Constant', 'Le Maitre', 'Specified'])
 
 if fe_option == 'Constant':
     fe_slider = st.sidebar.slider(label='Correction Factor', min_value=0.0, max_value=1.0, step=0.01)
