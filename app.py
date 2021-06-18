@@ -32,7 +32,7 @@ elif fe_option == 'Specified':
         specified_ops = data.columns.tolist()
         chosen_col = st.sidebar.selectbox('Choose Column', specified_ops)
 
-elif fe_option == 'La Maitre':
+elif fe_option == 'Le Maitre':
     rock_select = st.sidebar.radio(label='Igneous Type', options=['Plutonic', 'Volcanic'])
     # remove capitilisation
     if rock_select == 'Plutonic':
@@ -57,8 +57,8 @@ if file is not None:
         adj_factor = 0
 
 
-    elif fe_option == 'La Maitre':
-        corrected = functions.fe_correction(df=data, method='La Maitre', ig_type=rock_select)
+    elif fe_option == 'Le Maitre':
+        corrected = functions.fe_correction(df=data, method='Le Maitre', ig_type=rock_select)
         data['FeO'] = corrected['FeO']
         data['Fe2O3'] = corrected['Fe2O3']
         adj_factor = 0
