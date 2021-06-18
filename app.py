@@ -4,9 +4,12 @@ import functions
 st.set_page_config(layout='wide')
 
 st.write('## CIPW Normative Mineralogy Web App')
-st.write(
-    'This web app uses the implementation from Verma et al (date) to calculate normative \
-    mineralogy from bulk geochemistry data.')
+st.write("""
+    This web app uses the implementation from Verma et al (2003) to calculate normative 
+    mineralogy from bulk geochemistry data.
+    Major oxides should be given in wt%, minor and trace elements in ppm
+        """
+         )
 
 # Sidebar upload file
 st.sidebar.write('## Data Upload')
@@ -19,7 +22,23 @@ file = st.sidebar.file_uploader(' ', type=['.csv', '.xlsx'])
 data = functions.load_data(file)
 
 if file is not None:
-    st.write(data)
+    sum_threshold=90
+    data['Sum'] = functions.major_sum(data)
+    st.write(
+        data.style.apply(
+            functions.highlight_lessthan, threshold=sum_threshold, column='Sum', axis=1
+        )
+    )
+    n_samples = functions.summation_warning(data, sum_threshold)
+    if n_samples > 0:
+        st.write("""
+        **Warning!** {} samples dont sum up to more than {}%. \n
+        *The highlighted cells show the problem samples.
+        This may cause issues with the normative calculation* \n
+        """.format(n_samples, sum_threshold)
+        )
+
+
 
 st.sidebar.write('## Fe Correction Method')
 fe_option = st.sidebar.selectbox('Fe Correction Method', ['Constant', 'Le Maitre', 'Specified'])
@@ -66,6 +85,22 @@ if file is not None:
     if cal_button.button('Calculate Mineralogy'):
         norms = functions.CIPW_normative(data, Fe_adjustment_factor=adj_factor, majors_only=False)
 
-        st.write(norms)
-
+        st.write(norms.style.apply(functions.highlight_greaterthan, threshold=101, column='Sum', axis=1))
+        if len(norms[norms.sum(axis=1) > 101]):
+            st.write('*Highlighted cells show where the normative sum is > 101.*')
         st.markdown(functions.download_df(norms), unsafe_allow_html=True)
+
+        mineral_sum = norms['Sum']
+
+# Contact
+
+
+# Reference
+st.write('### References')
+st.write('''
+Le Maitre, R.W. Some problems of the projection of chemical data into mineralogical classifications
+    *Contr. Mineral. and Petrol. 56, 181–189 (1976). https://doi.org/10.1007/BF00399603*
+
+Verma, S.P., Torres-Alvarado, I.S. & Velasco-Tapia, F., 2003. A revised CIPW norm.
+*Schweizerische Mineralogische und Petrographische Mitteilungen, 83(2), pp.197–216.*
+''')
