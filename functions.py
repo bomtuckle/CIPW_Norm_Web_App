@@ -385,7 +385,7 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
         mineral_molecular_weights['Kp'] = df['MW_K2O_corr'] + 222.129876
         mineral_molecular_weights['Ks'] = df['MW_K2O_corr'] + 60.0843
         mineral_molecular_weights['Fe-Di'] = df['MW_FeO_corr'] + df['MW_CaO_corr'] + 120.1686
-        mineral_molecular_weights['Cr'] = df['MW_FeO_corr'] + df['MW_Cr2O3_corr']
+        mineral_molecular_weights['Cm'] = df['MW_FeO_corr'] + df['MW_Cr2O3_corr']
         mineral_molecular_weights['Hl'] = df['MW_Na_corr'] + 35.4527
         mineral_molecular_weights['Fr'] = df['MW_Ca_corr'] + 37.9968064
         mineral_molecular_weights['Pr'] = df['MW_Fe_corr'] + 64.132
@@ -855,8 +855,6 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
         mineral_pct_mm.drop(['An', 'Ab'], axis=1, inplace=True)
 
     #eturn(mineral_molecular_weights, mineral_pct_mm.T, FREE[['OXIDES', 'O', 'CO2']])
-
-    min_names = [mineral_codes[code] for code in mineral_pct_mm.columns.tolist()]
 
     mineral_pct_mm.rename(columns=mineral_codes, inplace=True)
 
