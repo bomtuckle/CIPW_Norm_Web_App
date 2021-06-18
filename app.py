@@ -86,7 +86,7 @@ if file is not None:
         norms = functions.CIPW_normative(data, Fe_adjustment_factor=adj_factor, majors_only=False)
 
         st.write(norms.style.apply(functions.highlight_greaterthan, threshold=101, column='Sum', axis=1))
-        if len(norms[norms.sum(axis=1) > 101]):
+        if len(norms[norms['Sum'] > 101]):
             st.write('*Highlighted cells show where the normative sum is > 101.*')
         st.markdown(functions.download_df(norms), unsafe_allow_html=True)
 
