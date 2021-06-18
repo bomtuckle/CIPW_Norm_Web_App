@@ -3,6 +3,16 @@ import numpy as np
 import streamlit as st
 import base64
 
+oxides = ['SiO2', 'TiO2', 'Al2O3', 'Fe2O3', 'FeO', 'MnO', 'MgO', 'CaO',
+              'Na2O', 'K2O', 'P2O5']
+
+def major_sum(data):
+    return data[oxides].sum(axis=1)
+
+def summation_warning(data, threshold):
+    return len(data[data[oxides].sum(axis=1) < threshold])
+
+
 def load_data(file):
     if file is not None:
         if 'csv' in file.name:
@@ -74,6 +84,7 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
         'Mg-Hy': 'Enstatite',
         'Ab': 'Albite',
         'Or': 'Orthoclase',
+        'Pl': 'Plagioclase',
         'Wo': 'Wollastonite',
         'Ol': 'Olivine',
         'Fe-Ol': 'Fayalite',
@@ -845,6 +856,15 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
 
     #eturn(mineral_molecular_weights, mineral_pct_mm.T, FREE[['OXIDES', 'O', 'CO2']])
 
+    min_names = [mineral_codes[code] for code in mineral_pct_mm.columns.tolist()]
+
+    mineral_pct_mm.rename(columns=mineral_codes, inplace=True)
+
+    mineral_pct_mm.fillna(0, inplace=True)
+
+    mineral_pct_mm['Sum'] = mineral_pct_mm.sum(skipna=True, axis=1)
+
+
     return(mineral_pct_mm)
 
 @st.cache
@@ -920,4 +940,16 @@ def download_df(df):
     b64 = base64.b64encode(
         xlsx.encode()
     ).decode()
-    return f'<a href="data:file/csv;base64,{b64}" download="normative_mineralogy.csv">Download csv file</a>'
+    return f'<a href="data:file/csv;base64,{b64}" download="normative_mineralogy.csv">Download results as csv file</a>'
+
+
+def highlight_greaterthan(s, threshold, column):
+    is_max = pd.Series(data=False, index=s.index)
+    is_max[column] = s.loc[column] >= threshold
+    return ['background-color: yellow' if is_max.any() else '' for v in is_max]
+
+def highlight_lessthan(s, threshold, column):
+    is_max = pd.Series(data=False, index=s.index)
+    is_max[column] = s.loc[column] <= threshold
+    return ['background-color: yellow' if is_max.any() else '' for v in is_max]
+
