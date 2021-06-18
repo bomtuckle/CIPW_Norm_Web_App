@@ -891,7 +891,7 @@ def fe_correction(df, method='Le Maitre', ig_type='plutonic', constant=None):
 
     df['total_Fe_as_FeO'] = (df['Fe2O3'] / 1.11134) + df['FeO']
 
-    if method == 'La Maitre':
+    if method == 'Le Maitre':
         if ig_type == 'plutonic':
             fe_adjustment_factor = 0.88 - (0.0016 * df['SiO2']) - (0.027 * (df['Na2O'] + df['K2O']))
         elif ig_type =='volcanic':
