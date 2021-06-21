@@ -173,7 +173,37 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
         'V': 'V2O3'
     }
 
+    print(df[['Cr2O3', 'Cr']])
 
+    oxides = ['SiO2', 'TiO2', 'Al2O3', 'Fe2O3', 'FeO', 'MnO', 'MgO', 'CaO',
+              'Na2O', 'K2O', 'P2O5']
+
+    trace_oxides = ['CO2', 'SO3', 'F', 'Cl', 'S', 'NiO', 'CoO',
+                    'SrO', 'BaO', 'Rb2O', 'Cs2O', 'Li2O', 'ZrO2', 'Cr2O3', 'V2O3']
+
+    # Check for major and trace elements. Add missing columns filled with 0 value.
+    # force numeric type
+
+    for oxide in oxides:
+        if oxide in df.columns.tolist():
+            df[oxide] = pd.to_numeric(df[oxide], errors='coerce')
+            continue
+        else:
+            df[oxide] = 0
+
+    for trace in trace_oxides:
+        if trace in df.columns.tolist():
+            df[trace] = pd.to_numeric(df[trace], errors='coerce')
+            continue
+        else:
+            df[oxide] = 0
+
+    for element in element_oxide.keys():
+        if element in df.columns.tolist():
+            df[element] = pd.to_numeric(df[element], errors='coerce')
+            continue
+        else:
+            df[element] = 0
 
     # replace str values from df with 0
     def unique_strings(df, col):
@@ -186,13 +216,6 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
     for col in df.columns.tolist():
         unique_str = (unique_strings(df, col))
         df[col].replace(unique_str, 0, inplace=True)
-
-
-    oxides = ['SiO2', 'TiO2', 'Al2O3', 'Fe2O3', 'FeO', 'MnO', 'MgO', 'CaO',
-                  'Na2O', 'K2O', 'P2O5']
-
-    trace_oxides = ['CO2', 'SO3', 'F', 'Cl', 'S', 'NiO', 'CoO',
-                  'SrO', 'BaO', 'Rb2O', 'Cs2O', 'Li2O', 'ZrO2', 'Cr2O3', 'V2O3']
 
     # conversion of trace elements from ppm to oxide % m/m
 
@@ -207,6 +230,7 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
 
     trace_elements_present = list(set(element_AW).intersection(df.columns.tolist()))
 
+    print(df[['Cr2O3', 'Cr']])
 
     for element in trace_elements_present:
         if element in ['Ni', 'Co', 'Sr', 'Ba', 'Zr']:
@@ -224,6 +248,7 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
                                          element_AW[element],
                                          df[element])
 
+    print(df[['Cr2O3', 'Cr']])
 
     trace_oxides_present = list(set(trace_oxides).intersection(df.columns.tolist()))
 
@@ -231,6 +256,8 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
     for oxide in trace_oxides:
         if oxide not in trace_oxides_present:
             df[oxide] = 0
+
+    print(df[['Cr2O3', 'Cr']])
 
     # Adjustment of Fe-oxidation ratio and 100% sum as well as computation of
     # some petrogenetically useful parameters
@@ -864,6 +891,7 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
 
 
     return(mineral_pct_mm)
+
 
 @st.cache
 def fe_correction(df, method='Le Maitre', ig_type='plutonic', constant=None):
