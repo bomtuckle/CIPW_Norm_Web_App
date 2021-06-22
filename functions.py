@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
+import plotly.express as px
 import base64
 
 oxides = ['SiO2', 'TiO2', 'Al2O3', 'Fe2O3', 'FeO', 'MnO', 'MgO', 'CaO',
@@ -26,6 +27,7 @@ def load_data(file):
     return data
 
 @st.cache
+
 def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
     """
     Calculates mineralogy from bulk geochemistry
@@ -173,37 +175,27 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
         'V': 'V2O3'
     }
 
-    print(df[['Cr2O3', 'Cr']])
 
     oxides = ['SiO2', 'TiO2', 'Al2O3', 'Fe2O3', 'FeO', 'MnO', 'MgO', 'CaO',
-              'Na2O', 'K2O', 'P2O5']
+                  'Na2O', 'K2O', 'P2O5']
 
     trace_oxides = ['CO2', 'SO3', 'F', 'Cl', 'S', 'NiO', 'CoO',
-                    'SrO', 'BaO', 'Rb2O', 'Cs2O', 'Li2O', 'ZrO2', 'Cr2O3', 'V2O3']
+                  'SrO', 'BaO', 'Rb2O', 'Cs2O', 'Li2O', 'ZrO2', 'Cr2O3', 'V2O3']
 
-    # Check for major and trace elements. Add missing columns filled with 0 value.
-    # force numeric type
+    # Force to numeric
+    for element in element_oxide.keys():
+        if element in df.columns.tolist():
+            df[element] = pd.to_numeric(df[element], errors='coerce')
 
     for oxide in oxides:
         if oxide in df.columns.tolist():
             df[oxide] = pd.to_numeric(df[oxide], errors='coerce')
-            continue
-        else:
-            df[oxide] = 0
+
 
     for trace in trace_oxides:
         if trace in df.columns.tolist():
             df[trace] = pd.to_numeric(df[trace], errors='coerce')
-            continue
-        else:
-            df[oxide] = 0
 
-    for element in element_oxide.keys():
-        if element in df.columns.tolist():
-            df[element] = pd.to_numeric(df[element], errors='coerce')
-            continue
-        else:
-            df[element] = 0
 
     # replace str values from df with 0
     def unique_strings(df, col):
@@ -216,6 +208,7 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
     for col in df.columns.tolist():
         unique_str = (unique_strings(df, col))
         df[col].replace(unique_str, 0, inplace=True)
+
 
     # conversion of trace elements from ppm to oxide % m/m
 
@@ -230,7 +223,6 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
 
     trace_elements_present = list(set(element_AW).intersection(df.columns.tolist()))
 
-    print(df[['Cr2O3', 'Cr']])
 
     for element in trace_elements_present:
         if element in ['Ni', 'Co', 'Sr', 'Ba', 'Zr']:
@@ -248,7 +240,6 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
                                          element_AW[element],
                                          df[element])
 
-    print(df[['Cr2O3', 'Cr']])
 
     trace_oxides_present = list(set(trace_oxides).intersection(df.columns.tolist()))
 
@@ -256,8 +247,6 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
     for oxide in trace_oxides:
         if oxide not in trace_oxides_present:
             df[oxide] = 0
-
-    print(df[['Cr2O3', 'Cr']])
 
     # Adjustment of Fe-oxidation ratio and 100% sum as well as computation of
     # some petrogenetically useful parameters
@@ -881,7 +870,6 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
         mineral_pct_mm['Pl'] = mineral_pct_mm[['An', 'Ab']].sum(axis=1)
         mineral_pct_mm.drop(['An', 'Ab'], axis=1, inplace=True)
 
-    #eturn(mineral_molecular_weights, mineral_pct_mm.T, FREE[['OXIDES', 'O', 'CO2']])
 
     mineral_pct_mm.rename(columns=mineral_codes, inplace=True)
 
@@ -891,7 +879,6 @@ def CIPW_normative(df, Fe_adjustment_factor, majors_only=True, subdivide=False):
 
 
     return(mineral_pct_mm)
-
 
 @st.cache
 def fe_correction(df, method='Le Maitre', ig_type='plutonic', constant=None):
@@ -959,7 +946,7 @@ def fe_correction(df, method='Le Maitre', ig_type='plutonic', constant=None):
 
     return df[['FeO', 'Fe2O3']]
 
-
+@st.cache
 def download_df(df):
     xlsx = df.to_csv(index=False)
     b64 = base64.b64encode(
@@ -977,4 +964,52 @@ def highlight_lessthan(s, threshold, column):
     is_max = pd.Series(data=False, index=s.index)
     is_max[column] = s.loc[column] <= threshold
     return ['background-color: yellow' if is_max.any() else '' for v in is_max]
+
+def plot_down_hole(data, minerals, hole_column, hole_id):
+
+    plot_data = data[(data[hole_column] == hole_id)].copy(deep=True)
+
+    plot_data['mid_sample'] = plot_data['Depth'].values + plot_data['Assay_length'].values / 2
+
+    plot_minerals = minerals
+
+    fig = px.bar(
+        plot_data,
+        x=plot_minerals,
+        y='mid_sample',
+        orientation='h',
+        width=250,
+        height=700,
+    )
+
+    fig.update_layout(
+        bargap=0
+    )
+
+    for d in fig.data:
+        d["width"] = plot_data['Assay_length']
+
+    fig['layout']['yaxis']['autorange'] = "reversed"
+    fig['layout']['xaxis']['fixedrange'] = True
+    fig['layout']['xaxis']['range'] = [0, 100]
+
+    fig['layout']['dragmode'] = 'pan'
+
+    return fig
+
+
+def plot_form(data):
+    with st.form(key='select_options'):
+        mineral_list = data.columns.tolist()
+        mineral_options = st.multiselect('Minerals to plot', mineral_list)
+
+        column_choice = data.columns.tolist()
+        chosen_col = st.selectbox('Choose column with hole ID', column_choice)
+        chosen_hole = st.selectbox('Choose Hole', data[chosen_col].unique())
+        plot_button = st.form_submit_button('Plot')
+
+    if plot_button:
+        fig = plot_down_hole(data, mineral_options, chosen_col, chosen_hole)
+
+        return fig
 
