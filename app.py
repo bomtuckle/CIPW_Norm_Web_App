@@ -85,7 +85,7 @@ def cipw():
             adj_factor = 0
 
         if cal_button.button('Calculate Mineralogy'):
-            norms = functions.CIPW_normative(data, Fe_adjustment_factor=adj_factor, majors_only=False)
+            norms = functions.CIPW_normative(data, Fe_adjustment_factor=adj_factor, majors_only=False, subdivide=True)
 
             st.write(norms.style.apply(functions.highlight_greaterthan, threshold=101, column='Sum', axis=1))
             if len(norms[norms['Sum'] > 101]):
