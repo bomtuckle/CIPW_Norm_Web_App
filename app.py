@@ -97,7 +97,10 @@ def cipw():
         
         if cal_button.button('Calculate Mineralogy!'):
             if fe_option == 'Constant':
-                adj_factor = fe_slider
+                corrected = functions.fe_correction(df=data, constant=data[fe_slider])
+                data['FeO'] = corrected['FeO']
+                data['Fe2O3'] = corrected['Fe2O3']
+                adj_factor = None
 
 
             elif fe_option == 'Specified':
