@@ -25,8 +25,8 @@ def cipw():
         - "Constant" allows you to select a set value
         - "Specified" allows you to select a column from your data that contains a correction factor \n
 
-    3. Hit "Calculate Mineralogy!" Results can be viewed here, or downloaded using the link.
-
+    3. Hit "Calculate Mineralogy!" \n
+    
     ''')
     st.markdown(functions.download_template(), unsafe_allow_html=True)
 
@@ -64,7 +64,10 @@ def cipw():
 
 
     st.sidebar.write('## Fe Correction Method')
-    fe_option = st.sidebar.selectbox('Fe Correction Method', ['Constant', 'Le Maitre', 'Specified'])
+    fe_option = st.sidebar.selectbox('Fe Correction Method', ['None', 'Constant', 'Le Maitre', 'Specified'])
+
+    if fe_option == 'None':
+        rock_select = None
 
     if fe_option == 'Constant':
         fe_slider = st.sidebar.slider(label='Correction Factor', min_value=0.0, max_value=1.0, step=0.01)
@@ -94,10 +97,12 @@ def cipw():
     cal_button = st.sidebar.empty()
 
     if file is not None:
-        
         if cal_button.button('Calculate Mineralogy!'):
+            if fe_option == 'None':
+                adj_factor = None
+
             if fe_option == 'Constant':
-                corrected = functions.fe_correction(df=data, constant=data[fe_slider])
+                corrected = functions.fe_correction(df=data, constant=fe_slider)
                 data['FeO'] = corrected['FeO']
                 data['Fe2O3'] = corrected['Fe2O3']
                 adj_factor = None

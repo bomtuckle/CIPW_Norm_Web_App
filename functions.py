@@ -139,8 +139,8 @@ def fe_correction(df, constant=None, specified_column=None):
 
 def calculate_norms(df, fe_correction_method, fe_correction_type=None, fe_constant=None):
 
-    if fe_correction_method == 'LeMaitre':
-        
+    if fe_correction_method == 'Le Maitre':
+        print(fe_correction_type)
         norms = CIPW_norm(df=df, Fe_correction='LeMaitre', Fe_correction_mode=fe_correction_type, adjust_all_Fe=True)
     
     else:
