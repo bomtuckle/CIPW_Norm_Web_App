@@ -45,7 +45,7 @@ def download_template():
     b64 = base64.b64encode(
         xlsx.encode()
     ).decode()
-    return f'<a href="data:file/csv;base64,{b64}" download="normative_mineralogy.csv">Click here to download an example template</a>'
+    return f'<a href="data:file/csv;base64,{b64}" download="template.csv">Click here to download an example template</a>'
 
 
 def highlight_greaterthan(s, threshold, column):
