@@ -94,22 +94,23 @@ def cipw():
     cal_button = st.sidebar.empty()
 
     if file is not None:
-        if fe_option == 'Constant':
-            adj_factor = fe_slider
-
-
-        elif fe_option == 'Specified':
-            corrected = functions.fe_correction(df=data, constant=data[chosen_col])
-            data['FeO'] = corrected['FeO']
-            data['Fe2O3'] = corrected['Fe2O3']
-            adj_factor = None
-
-
-        elif fe_option == 'Le Maitre':
-            adj_factor = None
-
         
         if cal_button.button('Calculate Mineralogy!'):
+            if fe_option == 'Constant':
+                adj_factor = fe_slider
+
+
+            elif fe_option == 'Specified':
+                corrected = functions.fe_correction(df=data, constant=data[chosen_col])
+                data['FeO'] = corrected['FeO']
+                data['Fe2O3'] = corrected['Fe2O3']
+                adj_factor = None
+
+
+            elif fe_option == 'Le Maitre':
+                adj_factor = None
+
+        
             
             norms = functions.calculate_norms(df=data, fe_correction_method=fe_option, fe_correction_type=rock_select, fe_constant=adj_factor)
             
