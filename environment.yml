@@ -2,6 +2,7 @@ name: CIPW_Norm_Web_App
 channels:
   - defaults
 dependencies:
+  - protobuf~=3.19.0
   - numpy=1.20.2
   - openpyxl=3.0.7
   - pandas=1.2.4
