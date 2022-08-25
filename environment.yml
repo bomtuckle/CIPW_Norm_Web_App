@@ -1,13 +1,12 @@
 name: CIPW_Norm_Web_App
 channels:
   - defaults
-  - conda-forge
 dependencies:
+  - numpy=1.20.2
+  - openpyxl=3.0.7
+  - pandas=1.2.4
+  - plotly=4.14.3
   - pip=21.1.1
   - pip:
     - streamlit==1.11.1
     - pyrolite==0.3.1
-    - numpy==1.20.2
-    - openpyxl==3.0.7
-    - pandas==1.2.4
-    - plotly==4.14.3
