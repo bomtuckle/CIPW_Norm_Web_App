@@ -9,6 +9,24 @@ from pyrolite.mineral.normative import CIPW_norm
 oxides = ['SiO2', 'TiO2', 'Al2O3', 'Fe2O3', 'FeO', 'MnO', 'MgO', 'CaO',
               'Na2O', 'K2O', 'P2O5']
 
+minor_trace = [        
+    "CO2",
+    "SO3",
+    "F",
+    "Cl",
+    "S",
+    "Ni",
+    "Co",
+    "Sr",
+    "Ba",
+    "Rb",
+    "Cs",
+    "Li",
+    "Zr",
+    "Cr",
+    "V"
+    ]
+
 def major_sum(data):
     return data[oxides].sum(axis=1)
 
@@ -39,7 +57,7 @@ def download_df(df):
     return f'<a href="data:file/csv;base64,{b64}" download="normative_mineralogy.csv">Download results as csv file</a>'
 
 def download_template():
-    template = pd.DataFrame(columns=oxides)
+    template = pd.DataFrame(columns=oxides+minor_trace)
 
     xlsx = template.to_csv(index=False)
     b64 = base64.b64encode(
