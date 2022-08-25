@@ -9,5 +9,5 @@ dependencies:
   - pip=21.1.1
   - plotly=4.14.3
   - pip:
-    - streamlit==0.85.0
+    - streamlit==1.11.1
     - pyrolite==0.3.1
